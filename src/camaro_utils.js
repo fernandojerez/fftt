@@ -1,6 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const vscode = require('vscode');
+const os = require('os');
+
+
 /**
  * @param {string} fsPath 
  */
@@ -66,20 +69,76 @@ exports.getCamaroBuild = (fsPath) => {
     let options = [];
     flatMenu("", options, final_menu);
     options.sort((a, b) => a.label == b.label ? 0 : a.label < b.label ? -1 : 1);
-    return {root_dir, options};
+    return { root_dir, options };
 }
 
 /**
  * @param {string} fsPath 
  */
-exports.getKittWorkDir = function(fsPath){
+exports.getKittWorkDir = function (fsPath) {
     return getDirectory(fsPath);
 }
 
-exports.runKitt = function({workdir, cmd}){
+/**
+ * 
+ * @param {String} workdir 
+ * @param {String} cmd 
+ */
+exports.runKitt = function (workdir, cmd) {
     let tm = new Date().getTime();
-    let terminal = vscode.window.createTerminal({cwd: workdir});
+    let terminal = vscode.window.createTerminal({ cwd: workdir });
     terminal.show();
     const fcmd = cmd.replace(/\r/g, "").replace(/\n/g, `[[${tm}]]`);
     terminal.sendText(`kitt -e "${cmd}" -nl "[[${tm}]]"`);
+}
+
+/**
+ * 
+ * @param {String} workdir 
+ * @param {String} cmd 
+ */
+exports.runGradle = function (workdir, cmd) {
+    if (cmd == '@exclude') {
+        return;
+    }
+
+    let enableDebug = false;    
+    if (cmd.startsWith("@")) {
+        cmd = "debug_on," + cmd.substring(1);
+        enableDebug = true;
+    }
+
+    let FF_BUILD_DIR = process.env.FF_BUILD_DIR;
+    if (FF_BUILD_DIR == null) {
+        vscode.window.showErrorMessage("The property or enviroment variable FF_BUILD_DIR is not configured");
+        return;
+    }
+
+    let FF_JAVA_HOME = process.env.FF_JAVA_HOME;
+    let jvmHomeArg = "";
+    if(FF_JAVA_HOME){
+        jvmHomeArg = `-Dorg.gradle.java.home="${FF_JAVA_HOME}"`;
+    }
+
+    let jvmArgs = "-Xmx1024M -Dfile.encoding=UTF-8"
+    if(os.platform() == 'darwin'){
+        jvmArgs +=" -XstartOnFirstThread";
+    }
+    if(enableDebug){
+        jvmArgs += " -Xdebug";
+        jvmArgs += " -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=2018"
+    }
+    jvmArgs = `-Dorg.gradle.jvmargs="${jvmArgs}"`
+
+    let gradleDir = path.join(FF_BUILD_DIR, path.basename(workdir), ".gradle");
+    fs.mkdirSync(gradleDir, { recursive: true });
+
+    let gradleUserHome = path.join(FF_BUILD_DIR, path.basename(workdir), ".gradle_home");
+    fs.mkdirSync(gradleUserHome, { recursive: true });
+
+    let terminal = vscode.window.createTerminal({ cwd: workdir });
+    terminal.show();
+
+    let fcmd = `gradlew ${cmd.replace(/,/g, " ")} --stacktrace --project-cache-dir="${gradleDir}" --gradle-user-home="${gradleUserHome}" ${jvmHomeArg} ${jvmArgs}`
+    terminal.sendText(fcmd);
 }

@@ -12,9 +12,7 @@ async function runFFCommand(args){
             placeHolder: "Select task to execute"
         });
         if(result != null){
-            let terminal = vscode.window.createTerminal({cwd:camaro.root_dir});
-            terminal.show();
-            terminal.sendText("gradlew " + result.value.replace(/,/g, " "));
+            camaro_utils.runGradle(camaro.root_dir, result.value);            
         }        
     }
 }
@@ -71,9 +69,9 @@ async function createFFProject(args) {
         canPickMany: false,
         placeHolder: "Select project type"
     });
-    camaro_utils.runKitt({workdir: root, cmd: 
+    camaro_utils.runKitt(root,
                     `add_import > :camaro 
-                     camaro:create_project > :${result.value}`});
+                     camaro:create_project > :${result.value}`);
 }
 
 /**

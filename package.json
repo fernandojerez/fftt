@@ -23,6 +23,10 @@
             {
                 "title": "FF kitt",
                 "command": "ff.commands.open_kitt"
+            },
+            {
+                "title": "Create FF Project",
+                "command": "ff.commands.create_project"
             }
         ],
         "menus": {

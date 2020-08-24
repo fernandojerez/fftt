@@ -42,9 +42,38 @@ async function openKittCommand(args){
         canPickMany: false,
         placeHolder: "Select task to execute"
     });
-    let terminal = vscode.window.createTerminal({cwd:root});
+    let terminal = vscode.window.createTerminal({cwd: root});
     terminal.show();
     terminal.sendText(result.value);
+}
+
+async function createFFProject(args) {
+    let root = camaro_utils.getKittWorkDir(args.fsPath);
+    let options = [
+        {
+            label: "Java",
+            value: "java"
+        },
+        {
+            label: "Multiple Language",
+            value: "multi"
+        },
+        {
+            label: "Multiple UI",
+            value: "multi_ui"
+        },
+        {
+            label: "Mustang",
+            value: "mustang"
+        }
+    ];
+    const result = await vscode.window.showQuickPick(options, {
+        canPickMany: false,
+        placeHolder: "Select project type"
+    });
+    camaro_utils.runKitt({workdir: root, cmd: 
+                    `add_import > :camaro 
+                     camaro:create_project > :${result.value}`});
 }
 
 /**
@@ -53,4 +82,5 @@ async function openKittCommand(args){
 exports.activate = (context) => {
     context.subscriptions.push(vscode.commands.registerCommand("ff.commands.run_camaro", runFFCommand));
     context.subscriptions.push(vscode.commands.registerCommand("ff.commands.open_kitt", openKittCommand));
+    context.subscriptions.push(vscode.commands.registerCommand("ff.commands.create_project", createFFProject));
 };

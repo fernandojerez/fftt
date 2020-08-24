@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-
+const vscode = require('vscode');
 /**
  * @param {string} fsPath 
  */
@@ -74,4 +74,12 @@ exports.getCamaroBuild = (fsPath) => {
  */
 exports.getKittWorkDir = function(fsPath){
     return getDirectory(fsPath);
+}
+
+exports.runKitt = function({workdir, cmd}){
+    let tm = new Date().getTime();
+    let terminal = vscode.window.createTerminal({cwd: workdir});
+    terminal.show();
+    const fcmd = cmd.replace(/\r/g, "").replace(/\n/g, `[[${tm}]]`);
+    terminal.sendText(`kitt -e "${cmd}" -nl "[[${tm}]]"`);
 }

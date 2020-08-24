@@ -1,0 +1,74 @@
+{
+    "name": "fftt",
+    "displayName": "fftt",
+    "description": "FF Transpiler Tool",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.48.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "main": "./src/extension.js",
+    "activationEvents": [
+        "onCommand:ff.commands.run_camaro",
+        "onLanguage:ff"
+    ],
+    "contributes": {
+        "commands": [
+            {
+                "title": "FF Camaro",
+                "command": "ff.commands.run_camaro"
+            },
+            {
+                "title": "FF kitt",
+                "command": "ff.commands.open_kitt"
+            }
+        ],
+        "menus": {
+            "explorer/context": [
+                {
+                    "command": "ff.commands.run_camaro"
+                },
+                {
+                    "command": "ff.commands.open_kitt"
+                }
+            ],
+            "editor/context": [
+                {
+                    "command": "ff.commands.run_camaro"
+                },
+                {
+                    "command": "ff.commands.open_kitt"
+                }
+            ]
+        },
+        "languages": [
+            {
+                "id": "ff",
+                "aliases": [
+                    "FF",
+                    "ff"
+                ],
+                "extensions": [
+                    ".ff"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "ff",
+                "scopeName": "source.ff",
+                "path": "./syntaxes/ff.tmLanguage.json"
+            }
+        ]
+    },
+    "devDependencies": {
+        "@types/node": "^14.6.0",
+        "@types/vscode": "^1.48.0",
+        "@typescript-eslint/eslint-plugin": "^3.10.0",
+        "@typescript-eslint/parser": "^3.10.0",
+        "typescript": "^4.0.2"
+    }
+}

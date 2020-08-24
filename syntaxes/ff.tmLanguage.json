@@ -1,0 +1,180 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "FF",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#expressions"
+		}
+	],
+	"repository": {
+		"expressions": {
+			"patterns": [{
+				"include": "#strings"
+			},
+			{
+				"include": "#numbers"
+			},
+			{
+				"include": "#variables"
+			},
+			{
+				"include": "#pointer"
+			},
+			{
+				"include": "#builder"
+			},
+			{
+				"include": "#macro_call"
+			},{
+				"include": "#colon_string"
+			}
+		]
+		},
+		"keywords": {
+			"patterns": [
+				{		
+					"name": "keyword.control.ff",
+					"match": "\\b(loop|if|for|return|try|break|continue)\\b"
+				},
+				{					
+					"name": "keyword.structures.ff",
+					"match": "\\b(struct|macro|exception|enum|impl|trait)\\b"
+				},
+				{					
+					"name": "keyword.import.ff",
+					"match": "\\b(var|def|await|cast|throw|import|as|auto)\\b"
+				},
+				{					
+					"name": "keyword.special.ff",
+					"match": "\\b(const|alias|no_release|register_release|macro_generated_code|imports)\\b"
+				},
+				{
+					"name": "storage.type.ff",
+					"match": "\\b(bool|double|byte|int|short|char|string|long|float|object|map|list|async|future|set|Bool|Double|Byte|Int|Short|Char|Long|Float|reader|writer|iterable|iterator)\\b"
+				}
+			]
+		},	
+		"colon_string": {
+			"patterns": [
+				{
+					"name": "entity.other.attribute-name.class.css",
+					"match": ":[a-zA-Z_][\\w]*"
+				}
+			]
+		},
+		"macro_call": {
+			"patterns": [
+				{
+					"name":"keyword.control.at-rule.css",
+					"match": "![a-zA-Z_][\\w]*"
+				}
+			]
+		},
+		"pointer":{
+			"patterns": [
+				{
+					"name": "entity.other.attribute-name.class.css",
+					"match": "#[a-zA-Z_][\\w]*"
+				}
+			]
+		},
+		"builder":{
+			"patterns": [{
+				"name": "keyword.control.at-rule.css",
+				"match": "@[a-zA-Z_\\$][\\w\\$]*"
+			}]
+		},
+		"variables": {
+			"patterns": [
+				{
+					"name": "support.variable",
+					"match": "\\$[a-zA-Z][a-zA-Z_]+"					
+				}
+			]
+		},
+		"numbers": {			
+			"patterns": [
+				{
+					"name":"constant.numeric.hex.ff",
+					"match": "0[xX][0-9A-F]+"
+				},
+				{
+					"name":"constant.numeric.ff",
+					"match": "[0-9][0-9,]*(\\.[0-9][0-9,]*)?([eE][+-]?[0-9][0-9,]*)?(#int|#long|#short|#byte|#float|#double)?"
+				}
+			]
+		},
+		"strings": {
+			"patterns": [
+				{
+					"include": "#string-multi-line"
+				},
+				{
+					"include": "#string-single-line"
+				}
+			]
+		},
+		"string-multi-line": {
+			"name": "string.quoted.triple.ff",
+			"begin": "('''|\"\"\")",
+			"end": "(\\1)",
+			"beginCaptures": {
+				"1": {
+					"name": "punctuation.definition.string.begin.ff"
+				}
+			},
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.definition.string.end.ff"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#string-expression"
+				}
+			]
+		},
+		"string-single-line": {
+			"name": "string.quoted.single.ff",
+			"begin": "('|\")",
+			"end": "(\\1)",
+			"beginCaptures": {
+				"1": {
+					"name": "punctuation.definition.string.begin.ff"
+				}
+			},
+			"endCaptures": {
+				"1": {
+					"name": "punctuation.definition.string.end.ff"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#string-expression"
+				}
+			]
+		},
+		"string-expression": {
+			"name":"meta.expression.ff",
+			"begin": "\\$\\{",
+			"end": "\\}",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.meta-expression.begin.ff"
+				}
+			},
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.definition.meta-expression.end.ff"
+				}
+			},
+			"patterns": [{
+				"include": "#expressions"
+			}]
+		}
+	},
+	"scopeName": "source.ff"
+}

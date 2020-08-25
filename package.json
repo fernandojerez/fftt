@@ -6,6 +6,7 @@
     "engines": {
         "vscode": "^1.48.0"
     },
+    "publisher": "ffcoder",
     "categories": [
         "Programming Languages"
     ],
@@ -56,7 +57,7 @@
                 ],
                 "extensions": [
                     ".ff"
-                ],
+                ],                
                 "configuration": "./language-configuration.json"
             }
         ],
@@ -64,7 +65,7 @@
             {
                 "language": "ff",
                 "scopeName": "source.ff",
-                "path": "./syntaxes/ff.tmLanguage.json"
+                "path": "./syntaxes/ff.tmLanguage.json"                
             }
         ]
     },

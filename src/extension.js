@@ -25,7 +25,7 @@ async function openKittCommand(args){
     let options = [
         {
             label: "Local Kitt",
-            value: "kitt"
+            value: "kitt --env=KITT_WORKDIR=."
         },
         {
             label: "Remote Kitt",

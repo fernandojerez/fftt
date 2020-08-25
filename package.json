@@ -13,6 +13,8 @@
     "main": "./src/extension.js",
     "activationEvents": [
         "onCommand:ff.commands.run_camaro",
+        "onCommand:ff.commands.open_kitt",
+        "onCommand:ff.commands.open_tundra",
         "onLanguage:ff"
     ],
     "contributes": {
@@ -26,6 +28,10 @@
                 "command": "ff.commands.open_kitt"
             },
             {
+                "title": "FF Tundra",
+                "command": "ff.commands.open_tundra"
+            },
+            {
                 "title": "Create FF Project",
                 "command": "ff.commands.create_project"
             }
@@ -37,6 +43,9 @@
                 },
                 {
                     "command": "ff.commands.open_kitt"
+                },
+                {
+                    "command": "ff.commands.open_tundra"
                 }
             ],
             "editor/context": [
@@ -45,6 +54,9 @@
                 },
                 {
                     "command": "ff.commands.open_kitt"
+                },
+                {
+                    "command": "ff.commands.open_tundra"
                 }
             ]
         },
@@ -57,7 +69,7 @@
                 ],
                 "extensions": [
                     ".ff"
-                ],                
+                ],
                 "configuration": "./language-configuration.json"
             }
         ],
@@ -65,7 +77,7 @@
             {
                 "language": "ff",
                 "scopeName": "source.ff",
-                "path": "./syntaxes/ff.tmLanguage.json"                
+                "path": "./syntaxes/ff.tmLanguage.json"
             }
         ]
     },

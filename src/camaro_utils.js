@@ -83,13 +83,14 @@ exports.getKittWorkDir = function (fsPath) {
  * 
  * @param {String} workdir 
  * @param {String} cmd 
+ * @param {String} args 
  */
-exports.runKitt = function (workdir, cmd) {
+exports.runKitt = function (workdir, cmd, args) {
     let tm = new Date().getTime();
     let terminal = vscode.window.createTerminal({ cwd: workdir });
     terminal.show();
-    const fcmd = cmd.replace(/\r/g, "").replace(/\n/g, `[[${tm}]]`);
-    terminal.sendText(`kitt -e "${cmd}" -nl "[[${tm}]]"`);
+    const fcmd = cmd.trim().replace(/\r/g, "").replace(/\n/g, `[[${tm}]]`);
+    terminal.sendText(`kitt ${args || ''} -e "${fcmd}" -nl "[[${tm}]]"`);
 }
 
 /**

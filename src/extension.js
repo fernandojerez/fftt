@@ -1,6 +1,5 @@
 const vscode = require('vscode');
 const camaro_utils = require('./camaro_utils');
-const { createSolutionBuilderWithWatch } = require('typescript');
 
 /**
  * @param {any} args

@@ -8,6 +8,10 @@
     },
     "publisher": "fernandojerez",
     "icon": "icon.png",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/fernandojerez/fftt.git"
+    },
     "categories": [
         "Programming Languages"
     ],

@@ -5,3 +5,5 @@ vsc-extension-quickstart.md
 fftt-0.0.1.vsix
 .eslintrc.json
 jsconfig.json
+img/**
+package_old.json

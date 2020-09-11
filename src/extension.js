@@ -135,7 +135,7 @@ async function createFFProject(args) {
  */
 exports.activate = (context) => {
     context.subscriptions.push(vscode.commands.registerCommand("ff.commands.run_camaro", runFFCommand));
-    context.subscriptions.push(vscode.commands.registerCommand("ff.commands.open_kitt", openKittCommand));
-    context.subscriptions.push(vscode.commands.registerCommand("ff.commands.open_tundra", openTundraCommand));
-    context.subscriptions.push(vscode.commands.registerCommand("ff.commands.create_project", createFFProject));
+    //context.subscriptions.push(vscode.commands.registerCommand("ff.commands.open_kitt", openKittCommand));
+    //context.subscriptions.push(vscode.commands.registerCommand("ff.commands.open_tundra", openTundraCommand));
+    //context.subscriptions.push(vscode.commands.registerCommand("ff.commands.create_project", createFFProject));
 };

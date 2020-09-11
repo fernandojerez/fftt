@@ -103,7 +103,14 @@ exports.runGradle = function (workdir, cmd) {
         return;
     }
 
-    let enableDebug = false;    
+    if (cmd.startsWith("shell:")) {
+        let terminal = vscode.window.createTerminal({ cwd: workdir });
+        terminal.show();
+        terminal.sendText(cmd.substring("shell:".length));
+        return;
+    }
+
+    let enableDebug = false;
     if (cmd.startsWith("@")) {
         cmd = "debug_on," + cmd.substring(1);
         enableDebug = true;
@@ -117,15 +124,15 @@ exports.runGradle = function (workdir, cmd) {
 
     let FF_JAVA_HOME = process.env.FF_JAVA_HOME;
     let jvmHomeArg = "";
-    if(FF_JAVA_HOME){
+    if (FF_JAVA_HOME) {
         jvmHomeArg = `-Dorg.gradle.java.home="${FF_JAVA_HOME}"`;
     }
 
     let jvmArgs = "-Xmx1024M -Dfile.encoding=UTF-8"
-    if(os.platform() == 'darwin'){
-        jvmArgs +=" -XstartOnFirstThread";
+    if (os.platform() == 'darwin') {
+        jvmArgs += " -XstartOnFirstThread";
     }
-    if(enableDebug){
+    if (enableDebug) {
         jvmArgs += " -Xdebug";
         jvmArgs += " -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=2018"
     }

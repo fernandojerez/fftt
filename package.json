@@ -6,10 +6,15 @@
     "engines": {
         "vscode": "^1.48.0"
     },
-    "publisher": "ffcoder",
+    "publisher": "fernandojerez",
+    "icon": "icon.png",
     "categories": [
         "Programming Languages"
     ],
+    "galleryBanner": {
+        "color": "#408000",
+        "theme": "dark"
+    },
     "main": "./src/extension.js",
     "activationEvents": [
         "onCommand:ff.commands.run_camaro",
@@ -40,23 +45,11 @@
             "explorer/context": [
                 {
                     "command": "ff.commands.run_camaro"
-                },
-                {
-                    "command": "ff.commands.open_kitt"
-                },
-                {
-                    "command": "ff.commands.open_tundra"
                 }
             ],
             "editor/context": [
                 {
                     "command": "ff.commands.run_camaro"
-                },
-                {
-                    "command": "ff.commands.open_kitt"
-                },
-                {
-                    "command": "ff.commands.open_tundra"
                 }
             ]
         },
@@ -86,6 +79,7 @@
         "@types/vscode": "^1.48.0",
         "@typescript-eslint/eslint-plugin": "^3.10.0",
         "@typescript-eslint/parser": "^3.10.0",
-        "typescript": "^4.0.2"
+        "typescript": "^4.0.2",
+        "vsce": "^1.79.5"
     }
 }

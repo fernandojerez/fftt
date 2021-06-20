@@ -2,7 +2,7 @@
   "name": "fftt",
   "displayName": "fftt",
   "description": "FF Transpiler Tool",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "engines": {
     "vscode": "^1.48.0"
   },

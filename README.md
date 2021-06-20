@@ -2,7 +2,7 @@
 
 This extension allow use FF camaro and kitt in vscode
 
-## Using cam,aro in your workflow.
+## Using camaro in your workflow.
 
 Create a file named **camaro.json** and define the commands you want to use:
 

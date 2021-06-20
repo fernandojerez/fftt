@@ -1,152 +1,190 @@
-const fs = require('fs');
-const path = require('path');
-const vscode = require('vscode');
-const os = require('os');
-
+const fs = require("fs");
+const path = require("path");
+const vscode = require("vscode");
+const os = require("os");
 
 /**
- * @param {string} fsPath 
+ * return the first directory in the path
+ * @param {string} fsPath
  */
-function getDirectory(fsPath) {
-    if (fs.lstatSync(fsPath).isDirectory()) {
-        return fsPath;
-    } else {
-        return path.dirname(fsPath);
+const getDirectory = (fsPath) => {
+  if (fs.lstatSync(fsPath).isDirectory()) {
+    return fsPath;
+  } else {
+    return path.dirname(fsPath);
+  }
+};
+
+/**
+ * find the camaro.json file inside the project structure starting from the selected element
+ * @param {string} fsPath
+ */
+const getCamaroBuildFile = (fsPath) => {
+  const root = path.parse(fsPath).root;
+  let rdir = getDirectory(fsPath);
+  do {
+    if (rdir == root) {
+      return null;
     }
-}
-
-/**
- * @param {string} fsPath 
- */
-function getCamaroBuildFile(fsPath) {
-    const root = path.parse(fsPath).root;
-    let rdir = getDirectory(fsPath);
-    do {
-        if (rdir == root) {
-            return null;
-        }
-        let file = path.join(rdir, "camaro.json");
-        if (fs.existsSync(file)) return file;
-        rdir = path.dirname(rdir);
-    } while (true);
-}
+    let file = path.join(rdir, "camaro.json");
+    if (fs.existsSync(file)) return file;
+    rdir = path.dirname(rdir);
+  } while (true);
+};
 
 /**
  * @param {String} prefix
- * @param {Array} result 
- * @param {Object} input 
+ * @param {Array} result
+ * @param {Object} input
  */
-function flatMenu(prefix, result, input) {
-    for (let key in input) {
-        const value = input[key];
-        if (!value) continue;
-        if (value == '@exclude') continue;
-        if (typeof value == 'string') {
-            result.push({
-                label: prefix + key,
-                value
-            });
-        } else {
-            flatMenu(prefix + key + " > ", result, value);
-        }
+const flatMenu = (prefix, result, input) => {
+  for (let key in input) {
+    const value = input[key];
+    if (!value) continue;
+    if (value == "@exclude") continue;
+    if (typeof value == "string") {
+      result.push({
+        label: prefix + key,
+        value,
+      });
+    } else {
+      flatMenu(prefix + key + " > ", result, value);
     }
-}
+  }
+};
 
-/** 
- * @param {string} fsPath 
+/**
+ * Execute the command in the first terminal
+ *
+ * @param {String} workdir
+ * @param {String} command
+ * @param {Boolean?} reuse
+ */
+const runInTerminal = (workdir, name, command, reuse) => {
+  const terminal = !reuse
+    ? vscode.window.createTerminal({ cwd: workdir, name: `${name} @Not Reuse` })
+    : vscode.window.terminals.find((t) => !t.name.endsWith(" @Not Reuse")) ||
+      vscode.window.createTerminal({ cwd: workdir, name: name });
+  terminal.show();
+  terminal.sendText(command);
+};
+
+/**
+ * @param {string} fsPath
  */
 exports.getCamaroBuild = (fsPath) => {
-    let file = getCamaroBuildFile(fsPath);
-    if (!file) return null;
-    let root_dir = path.dirname(file);
-    let content = fs.readFileSync(file, { encoding: 'utf-8' });
-    let camaro = JSON.parse(content);
+  let file = getCamaroBuildFile(fsPath);
+  if (!file) return null;
+  let root_dir = path.dirname(file);
+  let content = fs.readFileSync(file, { encoding: "utf-8" });
+  let camaro = JSON.parse(content);
 
-    let menu_cfg = camaro.menu || {};
-    let custom_menu = camaro.custom_menu || {};
-    let final_menu = { ...menu_cfg, ...custom_menu };
+  let menu_cfg = camaro.menu || {};
+  let custom_menu = camaro.custom_menu || {};
+  let final_menu = { ...menu_cfg, ...custom_menu };
 
-    let options = [];
-    flatMenu("", options, final_menu);
-    options.sort((a, b) => a.label == b.label ? 0 : a.label < b.label ? -1 : 1);
-    return { root_dir, options };
-}
-
-/**
- * @param {string} fsPath 
- */
-exports.getKittWorkDir = function (fsPath) {
-    return getDirectory(fsPath);
-}
+  let options = [];
+  flatMenu("", options, final_menu);
+  options.sort((a, b) => {
+    if (a.label === b.label) return 0;
+    if (a.label < b.label) return -1;
+    return 1;
+  });
+  return { root_dir, options };
+};
 
 /**
- * 
- * @param {String} workdir 
- * @param {String} cmd 
- * @param {String} args 
+ * @param {string} fsPath
  */
-exports.runKitt = function (workdir, cmd, args) {
-    let tm = new Date().getTime();
-    let terminal = vscode.window.createTerminal({ cwd: workdir });
-    terminal.show();
-    const fcmd = cmd.trim().replace(/\r/g, "").replace(/\n/g, `[[${tm}]]`);
-    terminal.sendText(`kitt ${args || ''} -e "${fcmd}" -nl "[[${tm}]]"`);
-}
+exports.getKittWorkDir = (fsPath) => {
+  return getDirectory(fsPath);
+};
 
 /**
- * 
- * @param {String} workdir 
- * @param {String} cmd 
+ *
+ * @param {String} workdir
+ * @param {String} name
+ * @param {String} cmd
+ * @param {String} args
  */
-exports.runGradle = function (workdir, cmd) {
-    if (cmd == '@exclude') {
-        return;
-    }
+exports.runKitt = function (workdir, name, cmd, args, reuse) {
+  let tm = new Date().getTime();
+  let terminal = vscode.window.createTerminal({ cwd: workdir });
+  terminal.show();
+  const fcmd = cmd.trim().replace(/\r/g, "").replace(/\n/g, `[[${tm}]]`);
+  runInTerminal(
+    workdir,
+    name,
+    `kitt ${args || ""} -e "${fcmd}" -nl "[[${tm}]]"`,
+    reuse
+  );
+};
 
-    if (cmd.startsWith("shell:")) {
-        let terminal = vscode.window.createTerminal({ cwd: workdir });
-        terminal.show();
-        terminal.sendText(cmd.substring("shell:".length));
-        return;
-    }
+/**
+ *
+ * @param {String} workdir
+ * @param {String} cmd
+ */
+exports.runGradle = function (workdir, name, cmd) {
+  if (cmd == "@exclude") {
+    return;
+  }
 
-    let enableDebug = false;
-    if (cmd.startsWith("@")) {
-        cmd = "debug_on," + cmd.substring(1);
-        enableDebug = true;
-    }
+  if (cmd.startsWith("shell:")) {
+    runInTerminal(workdir, name, cmd.substring("shell:".length), true);
+    return;
+  }
 
-    let FF_BUILD_DIR = process.env.FF_BUILD_DIR;
-    if (FF_BUILD_DIR == null) {
-        vscode.window.showErrorMessage("The property or enviroment variable FF_BUILD_DIR is not configured");
-        return;
-    }
+  if (cmd.startsWith("shell_new:")) {
+    runInTerminal(workdir, name, cmd.substring("shell_new:".length), false);
+    return;
+  }
 
-    let FF_JAVA_HOME = process.env.FF_JAVA_HOME;
-    let jvmHomeArg = "";
-    if (FF_JAVA_HOME) {
-        jvmHomeArg = `-Dorg.gradle.java.home="${FF_JAVA_HOME}"`;
-    }
+  const FF_BUILD_DIR = process.env.FF_BUILD_DIR;
+  if (FF_BUILD_DIR == null) {
+    vscode.window.showErrorMessage(
+      "The property or enviroment variable FF_BUILD_DIR is not configured"
+    );
+    return;
+  }
 
-    let jvmArgs = "-Xmx1024M -Dfile.encoding=UTF-8"
-    if (os.platform() == 'darwin') {
-        jvmArgs += " -XstartOnFirstThread";
-    }
-    if (enableDebug) {
-        jvmArgs += " -Xdebug";
-        jvmArgs += " -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=2018"
-    }
-    jvmArgs = `-Dorg.gradle.jvmargs="${jvmArgs}"`
+  let enableDebug = false;
+  if (cmd.startsWith("@")) {
+    cmd = "debug_on," + cmd.substring(1);
+    enableDebug = true;
+  }
 
-    let gradleDir = path.join(FF_BUILD_DIR, path.basename(workdir), ".gradle");
-    fs.mkdirSync(gradleDir, { recursive: true });
+  const FF_JAVA_HOME = process.env.FF_JAVA_HOME;
+  const jvmHomeArg = FF_JAVA_HOME
+    ? `-Dorg.gradle.java.home="${FF_JAVA_HOME}"`
+    : "";
+  const jvmArgsParts = ["-Xmx1024M -Dfile.encoding=UTF-8"];
+  if (os.platform() == "darwin") {
+    jvmArgsParts.push("-XstartOnFirstThread");
+  }
+  if (enableDebug) {
+    jvmArgsParts.push("-Xdebug");
+    jvmArgsParts.push(
+      "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=2018"
+    );
+  }
+  const jvmArgs = `-Dorg.gradle.jvmargs="${jvmArgsParts.join(" ")}"`;
 
-    let gradleUserHome = path.join(FF_BUILD_DIR, path.basename(workdir), ".gradle_home");
-    fs.mkdirSync(gradleUserHome, { recursive: true });
+  const gradleDir = path.join(FF_BUILD_DIR, path.basename(workdir), ".gradle");
+  fs.mkdirSync(gradleDir, { recursive: true });
 
-    let terminal = vscode.window.createTerminal({ cwd: workdir });
-    terminal.show();
+  const gradleUserHome = path.join(
+    FF_BUILD_DIR,
+    path.basename(workdir),
+    ".gradle_home"
+  );
+  fs.mkdirSync(gradleUserHome, { recursive: true });
 
-    let fcmd = `gradlew ${cmd.replace(/,/g, " ")} --stacktrace --project-cache-dir="${gradleDir}" --gradle-user-home="${gradleUserHome}" ${jvmHomeArg} ${jvmArgs}`
-    terminal.sendText(fcmd);
-}
+  const fcmd = `gradlew ${cmd.replace(
+    /,/g,
+    " "
+  )} --stacktrace --project-cache-dir="${gradleDir}" --gradle-user-home="${gradleUserHome}" ${jvmHomeArg} ${jvmArgs}`;
+  runInTerminal(workdir, name, fcmd, true);
+};
+
+exports.runInTerminal = runInTerminal;
